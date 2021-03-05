@@ -1,57 +1,48 @@
-const CarModel = require('../model/index.js');
+const CarModel = require('../model/index');
 
 module.exports = {
-    list: (req, res) => {
-        CarModel.find((err, car) => {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error while fetching cars',
-                    error: err
+        list: (req, res) => {
+                CarModel.find((err, car) => {
+                    if (err) {
+                        res.status(500).json({
+                            messgae: "There was an error",
+                            error: err
+                        });
+                    }
+                   return res.json(car);
+                })
+        },
+        show: (req, res) => {
+            CarModel.find({"type.make": req.params.make}, (err, cars) => {
+                if (err) {
+                    res.status(404).json({
+                        message: "There was an error",
+                        error: err
+                    });
+                }
+                if (!cars) {
+                    res.status(404).json({
+                        message: "There was an error",
+                        error: err
+                    });
+                }
+               return res.json(cars);
+            });
+        },
+            create: (req, res) => {
+                let vehicle = new CarModel({
+                    'type.make': req.body.make,
+                    'type.model': req.body.model,
+                    'color': req.body.color
+                });
+                vehicle.save((err, car) => {
+                    if (err) {
+                        res.status(500).json({
+                            message: " OOPSIES",
+                            error: err
+                       });
+                    }
+                    return res.status(201).json(car);
                 });
             }
-            return res.json(car);
-        })
-    },
-    show: (req, res) => {
-        let carMake = req.params.make;
-
-        CarModel.find({
-            'type.make': carMake
-        }, function (err, car) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting car.',
-                    error: err
-                });
-            }
-
-            if (!car) {
-                return res.status(404).json({
-                    message: 'No such car'
-                });
-            }
-
-            return res.json(car);
-        });
-    },
-    create: function (req, res) {
-        let vehicle = new CarModel({
-            'type.make': req.body.make,
-            'type.model': req.body.model,
-            "color": req.body.color,
-
-
-        });
-
-        vehicle.save(function (err, car) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when creating car',
-                    error: err
-                });
-            }
-
-            return res.status(201).json(car);
-        });
-    }
 }
